@@ -3,8 +3,9 @@
         this.init();
         this.setCanvas();
         this.setSocket();
-        this.setEvents();
     };
+
+    Kanvas.prototype = new Object();
 
     Kanvas.prototype.init = function() {
         this.before = {
@@ -23,9 +24,8 @@
 
     Kanvas.prototype.setCanvas = function() {
         this.canvas = document.getElementById('canvas');
-        console.log('window: ', window.innerWidth, window.innerHeight);
         this.canvas.width  = window.innerWidth  - 30;
-        this.canvas.height = window.innerHeingt - 30;
+        this.canvas.height = window.innerHeight - 30;
 
         this.context = this.canvas.getContext('2d');
 
@@ -41,7 +41,7 @@
         });
 
         this.socket.on('message', function(data) {
-            self.socket.color = data.color;
+            self.context.strokeStyle = data.color;
             self[data.type](data);
         });
     };
@@ -102,7 +102,6 @@
     Kanvas.prototype.beginPath = function() {
         this.context.beginPath();
         this.context.moveTo(this.before.x, this.before.y);
-        console.log(this.context.strokeStyle, this.after.x, this.after.y);
     };
     Kanvas.prototype.endPath = function() {
         this.context.lineTo(this.after.x, this.after.y);
@@ -112,7 +111,7 @@
     Kanvas.prototype.movePath = function() {
         this.context.lineTo(this.after.x, this.after.y);
         this.context.stroke();
-        //console.log(this.context.strokeStyle, this.after.x, this.after.y);
+        console.log(this.context.strokeStyle, this.after.x, this.after.y);
     };
 
     Kanvas.prototype.send = function(target) {
@@ -126,12 +125,13 @@
     };
 
     Kanvas.prototype.setPallet = function() {
+        self = this;
         var colors = document.getElementById('curves').childNodes;
         for (var i = 0, color; color = colors[i]; i++) {
-            if (colors[i].nodeName.toLowerCase() != 'div') continue;
-            colors[i].addEventListener('click', function(event) {
+            if (color.nodeName.toLowerCase() != 'div') continue;
+            color.addEventListener('click', function(event) {
                 var style = event.target.getAttribute('style');
-                this.color = style.match(/background:(#......)/)[1];
+                self.color = style.match(/background:(#......)/)[1];
             }, false);
         }
     };
@@ -143,4 +143,5 @@
 window.addEventListener('load', function() {
     var kanvas = new Kanvas();
     kanvas.setPallet();
+    kanvas.setEvents();
 }, false);
